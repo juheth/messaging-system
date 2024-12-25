@@ -1,30 +1,29 @@
+// infrastructure/database/connection.go
 package database
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func ConnectionDB() (*gorm.DB, error) {
+type Config struct {
+	User     string
+	Password string
+	Host     string
+	Port     string
+	Database string
+}
 
-	_ = godotenv.Load()
-
-	user := os.Getenv("DATABASE_USER")
-	password := os.Getenv("DATABASE_PASSWORD")
-	host := os.Getenv("DATABASE_HOST")
-	port := os.Getenv("DATABASE_PORT")
-	name := os.Getenv("DATABASE_NAME")
+func ConnectDB(config Config) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True",
-		user,
-		password,
-		host,
-		port,
-		name,
+		config.User,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Database,
 	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
