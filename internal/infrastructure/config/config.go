@@ -5,16 +5,23 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/juheth/messaging-system/internal/infrastructure/database"
 )
 
-func LoadConfig() database.Config {
+type Config struct {
+	User     string
+	Password string
+	Host     string
+	Port     string
+	Database string
+}
+
+func LoadConfig() Config {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	return database.Config{
+	return Config{
 		User:     os.Getenv("DATABASE_USER"),
 		Password: os.Getenv("DATABASE_PASSWORD"),
 		Host:     os.Getenv("DATABASE_HOST"),

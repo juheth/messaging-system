@@ -1,11 +1,14 @@
-package models
-
-import "time"
+package domain
 
 type User struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID       int    `json:"id"`
+	Username string `json:"name"`
+	Email    string `json:"email"`
+}
+
+func NewUser(name, email string) *User {
+	return &User{
+		Username: name,
+		Email:    email,
+	}
 }
