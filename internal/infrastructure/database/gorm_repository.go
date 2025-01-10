@@ -2,33 +2,24 @@
 package database
 
 import (
-	"fmt"
-
-	"gorm.io/driver/mysql"
+	"github.com/juheth/messaging-system/internal/domain"
 	"gorm.io/gorm"
 )
 
-type Config struct {
-	User     string
-	Password string
-	Host     string
-	Port     string
-	Database string
+type GormMessageRepository struct {
+	db *gorm.DB
 }
 
-func ConnectDB(config Config) (*gorm.DB, error) {
+func NewGormMessageRepository(db *gorm.DB) *GormMessageRepository {
+	return &GormMessageRepository{db: db}
+}
 
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True",
-		config.User,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Database,
-	)
+func (r *GormMessageRepository) Save(message *domain.Message) error {
+	return r.db.Create(message).Error
+}
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	return db, err
+func (r *GormMessageRepository) GetByRoomID(roomID int) ([]domain.Message, error) {
+	var messages []domain.Message
+	err := r.db.Where("room_id = ?", roomID).Find(&messages).Error
+	return messages, err
 }
