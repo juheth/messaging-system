@@ -1,27 +1,39 @@
 package room
 
 import (
-	"errors"
-
 	"github.com/juheth/messaging-system/internal/domain"
-	"github.com/juheth/messaging-system/internal/repository"
 )
 
 type Service struct {
-	roomRepo repository.RoomRepository
+	repo Repository
 }
 
-func NewService(roomRepo repository.RoomRepository) *Service {
-	return &Service{roomRepo: roomRepo}
+func NewService(repo Repository) *Service {
+	return &Service{repo: repo}
 }
 
-func (s *Service) CreateRoom(name string) (domain.Room, error) {
-	if name == "" {
-		return domain.Room{}, errors.New("room name cannot be empty")
+func (s *Service) CreateRoom(name string) (*domain.Room, error) {
+	rm := &domain.Room{
+		Name: name,
 	}
-	room := domain.Room{Name: name}
-	if err := s.roomRepo.CreateRoom(&room); err != nil {
-		return domain.Room{}, err
+	if err := s.repo.CreateRoom(rm); err != nil {
+		return nil, err
 	}
-	return room, nil
+	return rm, nil
+}
+
+func (s *Service) UpdateRoom(id int, name string) (*domain.Room, error) {
+	rm, err := s.repo.GetRoomByID(id)
+	if err != nil {
+		return nil, err
+	}
+	rm.Name = name
+	if err := s.repo.UpdateRoom(rm); err != nil {
+		return nil, err
+	}
+	return rm, nil
+}
+
+func (s *Service) DeleteRoom(id int) error {
+	return s.repo.DeleteRoom(id)
 }

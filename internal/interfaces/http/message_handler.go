@@ -63,3 +63,42 @@ func (h *MessageHandler) GetMessagesByRoom(c *gin.Context) {
 
 	c.JSON(http.StatusOK, messages)
 }
+
+func (h *MessageHandler) UpdateMessage(c *gin.Context) {
+	var request struct {
+		Content string `json:"content"`
+	}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	messageID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid message ID"})
+		return
+	}
+
+	message, err := h.messageService.UpdateMessage(messageID, request.Content)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, message)
+}
+
+func (h *MessageHandler) DeleteMessage(c *gin.Context) {
+	messageID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid message ID"})
+		return
+	}
+
+	if err := h.messageService.DeleteMessage(messageID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Message deleted"})
+}
