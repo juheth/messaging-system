@@ -26,3 +26,16 @@ func (s *Service) CreateMessage(content string, sender domain.User, roomID int) 
 func (s *Service) GetMessagesByRoom(roomID int) ([]domain.Message, error) {
 	return s.messageRepo.GetByRoomID(roomID)
 }
+
+func (s *Service) UpdateMessage(id int, content string) (*domain.Message, error) {
+	message, err := s.messageRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	message.Content = content
+	return s.messageRepo.Update(message)
+}
+
+func (s *Service) DeleteMessage(id int) error {
+	return s.messageRepo.Delete(id)
+}

@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/juheth/messaging-system/internal/domain"
+	"github.com/juheth/messaging-system/internal/usecases/room"
 	"gorm.io/gorm"
 )
 
@@ -19,12 +20,20 @@ func (r *RoomRepository) GetAllRooms() ([]domain.Room, error) {
 	return rooms, err
 }
 
-func (r *RoomRepository) GetRoomByID(id int) (domain.Room, error) {
+func (r *RoomRepository) GetRoomByID(id int) (*domain.Room, error) {
 	var room domain.Room
 	err := r.db.First(&room, id).Error
-	return room, err
+	return &room, err
 }
 
-func NewRoomRepository(db *gorm.DB) *RoomRepository {
+func (r *RoomRepository) UpdateRoom(room *domain.Room) error {
+	return r.db.Save(room).Error
+}
+
+func (r *RoomRepository) DeleteRoom(id int) error {
+	return r.db.Delete(&domain.Room{}, id).Error
+}
+
+func NewRoomRepository(db *gorm.DB) room.Repository {
 	return &RoomRepository{db: db}
 }

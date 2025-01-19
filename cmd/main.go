@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +21,7 @@ func main() {
 	}
 
 	// Repositorios
-	messageRepo := database.NewGormMessageRepository(db)
+	messageRepo := database.NewMessageRepository(db)
 	roomRepo := database.NewRoomRepository(db)
 
 	// Servicios
@@ -36,19 +35,24 @@ func main() {
 	// Configurar Gin
 	r := gin.Default()
 
+	// Ruta para generar el token
+	r.POST("/token", auth.GenerateTokenHandler)
+
 	// Middleware de autenticación
 	r.Use(auth.AuthMiddleware())
 
-	// Rutas
+	// Rutas de mensajes
 	r.POST("/messages", messageHandler.CreateMessage)
 	r.GET("/messages/:room_id", messageHandler.GetMessagesByRoom)
-	r.POST("/rooms", roomHandler.CreateRoom) // Ruta para crear una sala
+	r.PUT("/messages/:id", messageHandler.UpdateMessage)
+	r.DELETE("/messages/:id", messageHandler.DeleteMessage)
 
-	token, err := auth.GenerateJWT(1)
-	if err != nil {
-		log.Fatalf("Error generando el token: %v", err)
+	// Rutas de salas
+	r.POST("/rooms", roomHandler.CreateRoom)
+	r.PUT("/rooms/:id", roomHandler.UpdateRoom)
+	r.DELETE("/rooms/:id", roomHandler.DeleteRoom)
+
+	if err := r.Run(":8081"); err != nil {
+		log.Fatalf("Error starting server: %v", err)
 	}
-	fmt.Printf("Token generado: %s\n", token)
-	r.Run(":8081")
-
 }
